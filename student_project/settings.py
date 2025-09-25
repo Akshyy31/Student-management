@@ -55,7 +55,7 @@ ROOT_URLCONF = 'student_project.urls'
 TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
-        'DIRS': [],
+        'DIRS': [ BASE_DIR/ 'templates'],
         'APP_DIRS': True,
         'OPTIONS': {
             'context_processors': [
@@ -76,8 +76,8 @@ WSGI_APPLICATION = 'student_project.wsgi.application'
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.postgresql',
-        'NAME': 'postgres',
-        'USER': 'postgres',                         # Database user
+        'NAME': 'student_crud_db',
+        'USER': 'postgres',                           # Database user
         'PASSWORD': '5432',                         # User password
         'HOST': 'localhost',                        # Database server 
         'PORT': '5432',                             # Default PostgreSQL port
@@ -104,6 +104,7 @@ AUTH_PASSWORD_VALIDATORS = [
     },
 ]
 
+AUTH_USER_MODEL = 'student_app.CustomUser'
 
 # Internationalization
 # https://docs.djangoproject.com/en/5.2/topics/i18n/
