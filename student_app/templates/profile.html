@@ -1,9 +1,12 @@
 {% extends 'base.html' %}
 {% block content %}
 <div class="container mt-4">
-    <h2>Profile</h2>
-    <p>Username: {{ request.user.username }}</p>
-    <p>Email: {{ request.user.email }}</p>
-    <p>Role: {{ request.user.role }}</p>
+    <div class="card shadow-lg p-4 rounded-3">
+        <h3 class="mb-3">Student Profile</h3>
+        <p><strong>Name:</strong> {{ profile.user.get_full_name }}</p>
+        <p><strong>Roll Number:</strong> {{ profile.roll_number }}</p>
+        <p><strong>Department:</strong> {{ profile.department.name }}</p>
+        <p><strong>Year of Admission:</strong> {{ profile.year_of_admission }}</p>
+    </div>
 </div>
 {% endblock %}

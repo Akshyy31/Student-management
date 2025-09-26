@@ -1,0 +1,109 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Student Profile Dashboard</title>
+    <link rel="stylesheet" href="{% static 'css/student_dashboard.css' %}">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+</head>
+<body>
+    <div class="header">
+        <div class="logo">
+            <i class="fas fa-user-graduate"></i>
+            <span>student management</span>
+        </div>
+        <nav class="nav-links">
+            <a href="#"><i class="fas fa-home"></i> Home</a>
+            <a href="#"><i class="fas fa-info-circle"></i> About</a>
+        </nav>
+        <div class="user-info">
+            <span>Welcome, {{ request.user.username }}</span>
+            <a href="{% url 'logout' %}"><i class="fas fa-sign-out-alt"></i> Logout</a>
+        </div>
+    </div>
+
+    <div class="container">
+        <header class="profile-header">
+            <img src="{{ user.studentprofile.profile_picture.url }}" alt="Profile Picture" class="avatar">
+            <div class="profile-details">
+                <h1>{{ request.user.first_name }} {{ request.user.last_name }}</h1>
+                <p class="username">{{ request.user.username }}</p>
+                <span class="badge">{{ department_name  }}</span>
+            </div>
+         <a href="{% url 'edit_profile' %}"><button class="edit-profile-btn">
+                <i class="fas fa-pen"></i> Edit Profile
+            </button></a>   
+        </header>
+
+        <!-- <section class="stats-cards">
+            <div class="stat-card total">
+                <div class="card-icon-text">
+                    <i class="fas fa-book"></i>
+                    <div class="count">1</div>
+                </div>
+                <p>Total Courses</p>
+            </div>
+            <div class="stat-card completed">
+                <div class="card-icon-text">
+                    <i class="fas fa-check-circle"></i>
+                    <div class="count">1</div>
+                </div>
+                <p>Completed</p>
+            </div>
+            <div class="stat-card in-progress">
+                <div class="card-icon-text">
+                    <i class="fas fa-clock"></i>
+                    <div class="count">0</div>
+                </div>
+                <p>In Progress</p>
+            </div>
+        </section> -->
+
+        <main class="main-content">
+            <div class="info-card">
+                <h2><i class="fas fa-user"></i> Student Information</h2>
+                <div class="info-item">
+                    <i class="fas fa-id-card"></i>
+                    <span class="label">Roll Number</span>
+                    <span class="value">{{ profile.roll_number }}</span>
+                </div>
+                <div class="info-item">
+                    <i class="fas fa-envelope"></i>
+                    <span class="label">Email</span>
+                    <span class="value">{{ profile.user.email }}</span>
+                </div>
+                <div class="info-item">
+                    <i class="fas fa-calendar-alt"></i>
+                    <span class="label">Date of Birth</span>
+                    <span class="value">{{ profile.date_of_birth }}</span>
+                </div>
+                <div class="info-item">
+                    <i class="fas fa-calendar-check"></i>
+                    <span class="label">Year of Admission</span>
+                    <span class="value">{{ profile.year_of_admission }}</span>
+                </div>
+            </div>
+
+            <!-- <div class="courses-card">
+                <h2><i class="fas fa-graduation-cap"></i> My Courses</h2>
+                <div class="course-item">
+                    <p class="course-name">B.Com</p>
+                    <div class="course-details">
+                        <div class="completion-status">
+                            <i class="fas fa-calendar-day"></i> Sep 25, 2025
+                            <span class="completed-badge">
+                                <i class="fas fa-check-circle"></i> Completed
+                            </span>
+                        </div>
+                        <span class="course-completed-text">Course Completed</span>
+                    </div>
+                </div>
+                </div> -->
+        </main>
+    </div>
+
+    <!-- <div class="chat-icon"><i class="fas fa-comment-dots"></i></div> -->
+</body>
+</html>
