@@ -1,0 +1,17 @@
+{% block 'base.html' %}
+<div class="student-list">
+  {% for student in students %}
+  <div class="student-card">
+    <div class="student-details">
+      <h2>{{ student.first_name }} {{ student.last_name }}</h2>
+      <p>Email: {{ student.email }}</p>
+    </div>
+    <button>Edit</button>
+    <button>Delete</button>
+  </div>
+  {% empty %}
+  <p>No students found.</p>
+  {% endfor %}
+</div>
+
+{% endblock %}

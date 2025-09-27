@@ -1,6 +1,6 @@
 from django.contrib import admin
-from .models import StudentProfile,Department
+from .models import CustomUser,Department
 # Register your models here.
 
-admin.site.register(StudentProfile)
 admin.site.register(Department)
+admin.site.register(CustomUser)
