@@ -1,6 +1,6 @@
 from django import forms
 from django.contrib.auth.forms import UserCreationForm
-from .models import CustomUser,Course
+from .models import CustomUser,Course,Enrollment
 
 
 class StudentRegistrationForm(UserCreationForm):
@@ -63,8 +63,62 @@ class AdminAddStudentForm(forms.ModelForm):
             student.save()
         return student
     
+
 class CourseForm(forms.ModelForm):
     class Meta:
         model = Course
-        fields = ["name", "code", "description", "credits"]
-    
+        fields = ["title", "description"]
+
+# forms.py
+from django import forms
+from .models import Enrollment, CustomUser, Course
+
+# forms.py
+from django import forms
+from .models import Enrollment, CustomUser, Course
+
+class EnrollmentForm(forms.ModelForm):
+    student = forms.ModelChoiceField(
+        queryset=CustomUser.objects.filter(role='student'),
+        label="Select Student"
+    )
+    course = forms.ModelChoiceField(
+        queryset=Course.objects.all(),
+        label="Select Course"
+    )
+
+    class Meta:
+        model = Enrollment
+        fields = ['student', 'course']
+
+
+# forms.py
+from django import forms
+from .models import CustomUser, Course, Enrollment, Department
+
+class StudentEditForm(forms.ModelForm):
+    department = forms.ModelChoiceField(
+        queryset=Department.objects.all(), required=True
+    )
+    courses = forms.ModelMultipleChoiceField(
+        queryset=Course.objects.all(),
+        widget=forms.CheckboxSelectMultiple,  # can also use a dropdown with multiple select
+        required=False
+    )
+
+    class Meta:
+        model = CustomUser
+        fields = ['first_name', 'last_name', 'email', 'department', 'courses']
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        if self.instance:
+            self.fields['courses'].initial = self.instance.enrollments.values_list('course', flat=True)
+
+    def save(self, commit=True):
+        user = super().save(commit=commit)
+        if commit:
+            user.enrollments.all().delete()  # remove old enrollments
+            for course in self.cleaned_data['courses']:
+                Enrollment.objects.create(student=user, course=course)
+        return user

@@ -1,108 +1,175 @@
 {% load static %}
 <!DOCTYPE html>
 <html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Student Profile Dashboard</title>
-    <link rel="stylesheet" href="{% static 'css/student_dashboard.css' %}">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
-</head>
-<body>
+    <link rel="stylesheet" href="{% static 'css/student_dashboard.css' %}" />
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css"
+    />
+  </head>
+  <body>
+    <!-- Header -->
     <div class="header">
-        <div class="logo">
-            <i class="fas fa-user-graduate"></i>
-            <span>student management</span>
-        </div>
-        <nav class="nav-links">
-            <a href="#"><i class="fas fa-home"></i> Home</a>
-            <a href="#"><i class="fas fa-info-circle"></i> About</a>
-        </nav>
-        <div class="user-info">
-            <span>Welcome, {{ request.user.username }}</span>
-            <a href="{% url 'logout' %}"><i class="fas fa-sign-out-alt"></i> Logout</a>
-        </div>
+      <div class="logo">
+        <i class="fas fa-user-graduate"></i>
+        <span>Student Management</span>
+      </div>
+      <nav class="nav-links">
+        <a href="#"><i class="fas fa-home"></i> Home</a>
+        <a href="#"><i class="fas fa-info-circle"></i> About</a>
+      </nav>
+      <div class="user-info">
+        <span>Welcome, {{ request.user.username }}</span>
+        <a href="{% url 'logout' %}">
+          <i class="fas fa-sign-out-alt"></i> Logout
+        </a>
+      </div>
     </div>
 
     <div class="container">
-        <header class="profile-header">
-            <img src="{{  request.user.profile_picture.url }}" alt="Profile Picture" class="avatar">
-            <div class="profile-details">
-                <h1>{{ request.user.first_name }} {{ request.user.last_name }}</h1>
-                <p class="username">{{ request.user.username }}</p>
-                <span class="badge">{{ department_name  }}</span>
-            </div>
-         <a href="{% url 'edit_profile' %}"><button class="edit-profile-btn">
-                <i class="fas fa-pen"></i> Edit Profile
-            </button></a>   
-        </header>
+      <!-- Profile Header -->
+      <header class="profile-header">
+        {% if request.user.profile_picture %}
+        <img
+          src="{{ request.user.profile_picture.url }}"
+          alt="Profile picture"
+          width="150"
+        />
+        {% else %}
+        <img
+          src="{% static 'images/default-avatar.png' %}"
+          alt="Default profile"
+          width="150"
+        />
+        {% endif %}
+        <div class="profile-details">
+          <h1>{{ request.user.first_name }} {{ request.user.last_name }}</h1>
+          <p class="username">{{ request.user.username }}</p>
+          <span class="badge">{{ request.user.department.name }}</span>
+        </div>
+        <a href="{% url 'edit_profile' %}">
+          <button class="edit-profile-btn">
+            <i class="fas fa-pen"></i> Edit Profile
+          </button>
+        </a>
+      </header>
 
-        <section class="stats-cards">
-            <div class="stat-card total">
-                <div class="card-icon-text">
-                    <i class="fas fa-book"></i>
-                    <div class="count">1</div>
-                </div>
-                <p>Total Courses</p>
-            </div>
-            <div class="stat-card completed">
-                <div class="card-icon-text">
-                    <i class="fas fa-check-circle"></i>
-                    <div class="count">1</div>
-                </div>
-                <p>Completed</p>
-            </div>
-            <div class="stat-card in-progress">
-                <div class="card-icon-text">
-                    <i class="fas fa-clock"></i>
-                    <div class="count">0</div>
-                </div>
-                <p>In Progress</p>
-            </div>
-        </section>
+      <!-- Stats Cards -->
+      <section class="stats-cards">
+        <div class="stat-card total">
+          <div class="card-icon-text">
+            <i class="fas fa-book"></i>
+            <div class="count">{{ total_courses }}</div>
+          </div>
+          <p>Total Courses</p>
+        </div>
+        <div class="stat-card completed">
+          <div class="card-icon-text">
+            <i class="fas fa-check-circle"></i>
+            <div class="count">{{ completed_courses }}</div>
+          </div>
+          <p>Completed</p>
+        </div>
+        <div class="stat-card in-progress">
+          <div class="card-icon-text">
+            <i class="fas fa-clock"></i>
+            <div class="count">{{ active_courses }}</div>
+          </div>
+          <p>In Progress</p>
+        </div>
+      </section>
 
-        <main class="main-content">
-            <div class="info-card">
-                <h2><i class="fas fa-user"></i> Student Information</h2>
-                <div class="info-item">
-                    <i class="fas fa-id-card"></i>
-                    <span class="label">Roll Number</span>
-                    <span class="value">{{ request.user.roll_number }}</span>
-                </div>
-                <div class="info-item">
-                    <i class="fas fa-envelope"></i>
-                    <span class="label">Email</span>
-                    <span class="value">{{ request.user.email }}
-                <div class="info-item">
-                    <i class="fas fa-calendar-alt"></i>
-                    <span class="label">Date of Birth</span>
-                    <span class="value">{{  request.user.date_of_birth }}</span>
-                </div>
-                <div class="info-item">
-                    <i class="fas fa-calendar-check"></i>
-                    <span class="label">Year of Admission</span>
-                    <span class="value">{{  request.user.year_of_admission }}</span>
-                </div>
-            </div>
+      <!-- Main Content -->
+      <main class="main-content">
+        <!-- Student Info -->
+        <div class="info-card">
+          <h2><i class="fas fa-user"></i> Student Information</h2>
+          <div class="info-item">
+            <i class="fas fa-id-card"></i>
+            <span class="label">Roll Number</span>
+            <span class="value">{{ request.user.roll_number }}</span>
+          </div>
+          <div class="info-item">
+            <i class="fas fa-envelope"></i>
+            <span class="label">Email</span>
+            <span class="value">{{ request.user.email }}</span>
+          </div>
+          <div class="info-item">
+            <i class="fas fa-calendar-alt"></i>
+            <span class="label">Date of Birth</span>
+            <span class="value">{{ request.user.date_of_birth }}</span>
+          </div>
+          <div class="info-item">
+            <i class="fas fa-calendar-check"></i>
+            <span class="label">Year of Admission</span>
+            <span class="value">{{ request.user.year_of_admission }}</span>
+          </div>
+        </div>
 
-            <!-- <div class="courses-card">
-                <h2><i class="fas fa-graduation-cap"></i> My Courses</h2>
-                <div class="course-item">
-                    <p class="course-name">B.Com</p>
-                    <div class="course-details">
-                        <div class="completion-status">
-                            <i class="fas fa-calendar-day"></i> Sep 25, 2025
-                            <span class="completed-badge">
-                                <i class="fas fa-check-circle"></i> Completed
-                            </span>
-                        </div>
-                        <span class="course-completed-text">Course Completed</span>
-                    </div>
+        <!-- Enrolled Courses -->
+        <div class="courses-card">
+          <h2><i class="fas fa-graduation-cap"></i> My Courses</h2>
+          {% if enrollments %}
+            {% for enrollment in enrollments %}
+              <div class="course-item">
+                <p class="course-name">
+                  {{ enrollment.course.title }} ({{ enrollment.course.id }})
+                </p>
+                <div class="course-details">
+                  <div class="completion-status">
+                    <i class="fas fa-calendar-day"></i> {{ enrollment.enrollment_date|date:"Y-m-d" }}
+                    {% if enrollment.status == "completed" %}
+                      <span class="completed-badge"><i class="fas fa-check-circle"></i> Completed</span>
+                    {% elif enrollment.status == "active" %}
+                      <span class="in-progress-badge"><i class="fas fa-spinner"></i> In Progress</span>
+                    {% elif enrollment.status == "dropped" %}
+                      <span class="dropped-badge"><i class="fas fa-times-circle"></i> Dropped</span>
+                    {% else %}
+                      <span class="pending-badge"><i class="fas fa-hourglass-half"></i> Pending</span>
+                    {% endif %}
+                  </div>
+                  <div class="status-buttons">
+                    <a href="{% url 'update_enrollment_status' enrollment.id 'pending' %}" class="btn btn-warning btn-sm">Pending</a>
+                    <a href="{% url 'update_enrollment_status' enrollment.id 'active' %}" class="btn btn-info btn-sm">In Progress</a>
+                    <a href="{% url 'update_enrollment_status' enrollment.id 'completed' %}" class="btn btn-success btn-sm">Completed</a>
+                    <a href="{% url 'update_enrollment_status' enrollment.id 'dropped' %}" class="btn btn-danger btn-sm">Dropped</a>
+                  </div>
                 </div>
-                </div> -->
-        </main>
+              </div>
+            {% endfor %}
+          {% else %}
+            <p>No courses enrolled yet.</p>
+          {% endif %}
+        </div>
+
+        <!-- Available Courses for Enrollment -->
+        <div class="courses-card">
+          <h2><i class="fas fa-plus-circle"></i> Enroll New Courses</h2>
+          {% if available_courses %}
+            {% for course in available_courses %}
+              <div class="course-item">
+                <p class="course-name">{{ course.name }} ({{ course.code }})</p>
+                <div class="course-details">
+                  <p>{{ course.description }}</p>
+                  <p>Credits: {{ course.credits }}</p>
+                  <form action="{% url 'enroll_course' course.id %}" method="POST">
+                    {% csrf_token %}
+                    <button type="submit" class="enroll-btn"><i class="fas fa-plus-circle"></i> Enroll</button>
+                  </form>
+                </div>
+              </div>
+            {% endfor %}
+          {% else %}
+            <p>No available courses to enroll.</p>
+          {% endif %}
+        </div>
+      </main>
     </div>
 
-    <!-- <div class="chat-icon"><i class="fas fa-comment-dots"></i></div> -->
-</body>
+    <div class="chat-icon"><i class="fas fa-comment-dots"></i></div>
+  </body>
 </html>

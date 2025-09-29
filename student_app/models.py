@@ -1,69 +1,80 @@
+import datetime
 from django.contrib.auth.models import AbstractUser
 from django.db import models
+from django.conf import settings
 
-
+# ---------- Department Model ----------
 class Department(models.Model):
     name = models.CharField(max_length=100, unique=True)
 
     def __str__(self):
         return self.name
-    
 
+
+# ---------- Custom User Model ----------
 class CustomUser(AbstractUser):
     ROLE_CHOICES = (
         ("admin", "Admin"),
         ("student", "Student"),
     )
 
-    # role field
     role = models.CharField(max_length=10, choices=ROLE_CHOICES, default="student")
 
-    # student-specific fields
+    # Student-specific fields
     roll_number = models.CharField(max_length=20, unique=True, blank=True, null=True)
-    department = models.ForeignKey(Department,max_length=100, on_delete=models.SET_NULL,null=True)
-    year_of_admission = models.IntegerField(blank=True, null=True)
-    date_of_birth = models.DateField(null=True, blank=True)
-    profile_picture = models.ImageField(upload_to='profile_pics/', blank=True, null=True)
+    department = models.ForeignKey(
+        Department,
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True
+    )
+    year_of_admission = models.IntegerField(blank=True, null=True, default=2025)
+    date_of_birth = models.DateField(null=True, blank=True, default=datetime.date(2000, 1, 1))
+    profile_picture = models.ImageField(
+        upload_to='profile_pics/',
+        blank=True,
+        null=True,
+        default='profile_pics/default.png'
+    )
 
     def __str__(self):
         return f"{self.username} ({self.role})"
 
 
-# student_app/models.py
-
-from django.db import models
-from django.conf import settings
-
-
+# ---------- Course Model ----------
 class Course(models.Model):
-    name = models.CharField(max_length=200)
-    code = models.CharField(max_length=20, unique=True)  # e.g., CS101
+    title = models.CharField(max_length=200)
     description = models.TextField(blank=True, null=True)
-    credits = models.IntegerField(default=3)
-    department = models.ForeignKey(
-        "Department", on_delete=models.SET_NULL, null=True, blank=True
-    )
+    created_at = models.DateTimeField(auto_now_add=True,null=True)  # automatically set when created
+    updated_at = models.DateTimeField(auto_now=True,null=True)      # automatically updated
 
     def __str__(self):
-        return f"{self.code} - {self.name}"
+        return self.title
 
 
+# ---------- Enrollment Model ----------
 class Enrollment(models.Model):
+    STATUS_CHOICES = (
+        ('active', 'Active'),
+        ('completed', 'Completed'),
+        ('dropped', 'Dropped'),
+    )
+
     student = models.ForeignKey(
-        settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name="enrollments"
+        settings.AUTH_USER_MODEL,
+        on_delete=models.CASCADE,
+        related_name='enrollments'
     )
     course = models.ForeignKey(
-        Course, on_delete=models.CASCADE, related_name="enrollments"
+        Course,
+        on_delete=models.CASCADE,
+        related_name='enrollments'
     )
-    enrollment_date = models.DateField(auto_now_add=True)
-    status = models.CharField(
-        max_length=20,
-        choices=[("active", "Active"), ("completed", "Completed"), ("dropped", "Dropped")],
-        default="active",
-    )
+    enrollment_date = models.DateField(auto_now_add=True,null=True)
+    status = models.CharField(max_length=20, choices=STATUS_CHOICES, default='active')
 
     class Meta:
-        unique_together = ("student", "course")  # prevent duplicate enrollments
+        unique_together = ('student', 'course')  # prevent duplicate enrollments
 
     def __str__(self):
-        return f"{self.student.username} → {self.course.code}"
+        return f"{self.student.username} → {self.course.title} ({self.status})"

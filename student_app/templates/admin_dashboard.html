@@ -1,91 +1,108 @@
 {% load static %}
 <!DOCTYPE html>
 <html lang="en">
-  <head>
+<head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Student Management - Admin Dashboard</title>
     <link rel="stylesheet" href="{% static 'css/admin_dashboard.css' %}" />
-  </head>
-  <body>
-    <header class="navbar">
-      <div class="logo">
-        <span>🎓 student management</span>
-      </div>
-      <nav class="nav-links">
+</head>
+<body>
+<header class="navbar">
+    <div class="logo"><span>🎓 Student Management</span></div>
+    <nav class="nav-links">
         <a href="#">Home</a>
         <a href="#">About</a>
-      </nav>
-      <div class="user-info">
-        <span>Welcome, admin_user</span>
-        <a href="#" class="logout-btn">Logout</a>
-      </div>
-    </header>
+    </nav>
+    <div class="user-info">
+        <span>Welcome, {{ request.user.username }}</span>
+        <a href="{% url 'logout' %}" class="logout-btn">Logout</a>
+    </div>
+</header>
 
-    <main class="dashboard-container">
-      <div class="admin-header-banner">
+<main class="dashboard-container">
+    <div class="admin-header-banner">
         <h1>Admin Dashboard</h1>
         <p>Manage Students, Courses, and Enrollments</p>
-      </div>
+    </div>
 
-      <div class="dashboard-controls">
+    <div class="dashboard-controls">
         <div class="control-tabs">
-          <button class="tab-button active">
-            <span class="icon">🧑‍🎓</span> Students
-          </button>
-       <a href="{% url 'course_list' %}"> <button class="tab-button">
-            <span class="icon">📚</span> Courses
-          </button></a>  
-          <button class="tab-button">
-            <span class="icon">🔗</span> Enrollments
-          </button>
+            <button class="tab-button active"><span class="icon">🧑‍🎓</span> Students</button>
+            <a href="{% url 'course_list' %}"><button class="tab-button"><span class="icon">📚</span> Courses</button></a>
+            <a href="{% url 'enrollment_list' %}"><button class="tab-button"><span class="icon">🔗</span> Enrollments</button></a>
         </div>
-
         <div class="search-section">
-          <a href="{% url 'student_list' %}"><button class="add-student-btn">View Student</button></a>
-          
-          <a href="{% url 'add_student' %}"><button class="add-student-btn">+ Add Student</button></a>
-          <input type="text" placeholder="Search students..." />
-          <select>
-            <option>None</option>
-          </select>
-          <button class="search-btn">Search</button>
+            <a href="{% url 'student_list' %}"><button class="action-btn view-students-btn">View Students</button></a>
+            <a href="{% url 'add_student' %}"><button class="action-btn add-student-btn">+ Add Student</button></a>
+            <input type="text" placeholder="Search students..." />
+            <select><option>None</option></select>
+            <button class="action-btn search-btn">Search</button>
         </div>
-      </div>
+    </div>
 
-      <div class="summary-cards">
+    <div class="summary-cards">
         <div class="card total-students-card">
-          <span class="icon">👨‍🎓</span>
-          <!-- <span class="count">11</span> -->
-          <p>Total Students</p>
+            <span class="icon">👨‍🎓</span>
+            <span class="count">{{ total_students }}</span>
+            <p>Total Students</p>
         </div>
         <div class="card active-courses-card">
-          <span class="icon">📖</span>
-          <!-- <span class="count">6</span> -->
-          <p>Active Courses</p>
+            <span class="icon">📖</span>
+            <span class="count">{{ total_courses }}</span>
+            <p>Active Courses</p>
         </div>
         <div class="card enrollments-card">
-          <span class="icon">🔗</span>
-          <!-- <span class="count">9</span> -->
-          <p>Enrollments</p>
+            <span class="icon">🔗</span>
+            <span class="count">{{ total_enrollments }}</span>
+            <p>Enrollments</p>
         </div>
-      </div>
-
-  <div class="student-list">
-  {% for student in students %}
-  <div class="student-card">
-    <div class="student-details">
-      <h2>{{ student.first_name }} {{ student.last_name }}</h2>
-      <p>Email: {{ student.email }}</p>
     </div>
-  </div>
-  {% empty %}
-  <p>No students found.</p>
-  {% endfor %}
-</div>
 
+    <div class="student-list">
+        {% for student in students %}
+            <div class="student-card">
+                <div class="student-details">
+                    <h2>{{ student.first_name }} {{ student.last_name }} 
+                        <span class="roll-number-badge">#{{ student.roll_number }}</span>
+                    </h2>
+                    <div class="student-data-grid">
+                        <p><span class="student-data-label">Email:</span> <a href="mailto:{{ student.email }}">{{ student.email }}</a></p>
+                        <p><span class="student-data-label">Department:</span> 
+                            {% if student.department %}{{ student.department.name }}{% else %}<span class="unassigned">Not Assigned</span>{% endif %}
+                        </p>
+                        <p><span class="student-data-label">Admission Year:</span> {{ student.year_of_admission }}</p>
+                    </div>
+                </div>
 
+                <div class="student-enrollments">
+                    <h3>Enrolled Courses:</h3>
+                    {% if student.enrollments.exists %}
+                        <ul class="enrollment-list">
+                            {% for enrollment in student.enrollments.all %}
+                                <li class="enrollment-item">
+                                    <span class="course-name">{{ enrollment.course.name }}</span>
+                                    <span class="course-code">({{ enrollment.course.code }})</span>
+                                    <span class="enrollment-status status-{{ enrollment.status|lower }}">
+                                        {{ enrollment.status|title }}
+                                    </span>
+                                </li>
+                            {% endfor %}
+                        </ul>
+                    {% else %}
+                        <p class="no-enrollments">No courses enrolled yet.</p>
+                    {% endif %}
+                </div>
 
-    </main>
-  </body>
+                <div class="student-actions">
+                    <a href="{% url 'student_detail' student.pk %}" class="action-btn detail-btn">Details</a>
+                    <a href="{% url 'edit_student' student.id %}" class="action-btn edit-btn">Edit</a>
+                </div>
+            </div>
+        {% empty %}
+            <p class="no-results">No students found.</p>
+        {% endfor %}
+    </div>
+</main>
+</body>
 </html>

@@ -1,0 +1,24 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block content %}
+<h2>Available Courses</h2>
+
+{% if courses %}
+    <ul>
+        {% for course in courses %}
+            <li>
+                <strong>{{ course.name }} ({{ course.code }})</strong>
+                <p>{{ course.description }}</p>
+                <p>Credits: {{ course.credits }}</p>
+                <form action="{% url 'enroll_course' course.id %}" method="POST">
+                    {% csrf_token %}
+                    <button type="submit">Enroll</button>
+                </form>
+            </li>
+        {% endfor %}
+    </ul>
+{% else %}
+    <p>You have enrolled in all available courses.</p>
+{% endif %}
+{% endblock %}
