@@ -1,6 +1,6 @@
 from django import forms
 from django.contrib.auth.forms import UserCreationForm
-from .models import CustomUser,Course,Enrollment
+from .models import CustomUser,Course,Enrollment,Department
 
 
 class StudentRegistrationForm(UserCreationForm):
@@ -92,9 +92,6 @@ class EnrollmentForm(forms.ModelForm):
         fields = ['student', 'course']
 
 
-# forms.py
-from django import forms
-from .models import CustomUser, Course, Enrollment, Department
 
 class StudentEditForm(forms.ModelForm):
     department = forms.ModelChoiceField(
@@ -102,7 +99,7 @@ class StudentEditForm(forms.ModelForm):
     )
     courses = forms.ModelMultipleChoiceField(
         queryset=Course.objects.all(),
-        widget=forms.CheckboxSelectMultiple,  # can also use a dropdown with multiple select
+        widget=forms.CheckboxSelectMultiple,           # can also use a dropdown with multiple select
         required=False
     )
 
@@ -122,3 +119,19 @@ class StudentEditForm(forms.ModelForm):
             for course in self.cleaned_data['courses']:
                 Enrollment.objects.create(student=user, course=course)
         return user
+
+
+class StudentEditFormFromStudentList(forms.ModelForm):
+    department = forms.ModelChoiceField(queryset=Department.objects.all(), required=False)
+    roll_number = forms.CharField(max_length=50)
+    
+    # Optional: multiple course selection
+    courses = forms.ModelMultipleChoiceField(
+        queryset=Course.objects.all(),
+        required=False,
+        widget=forms.CheckboxSelectMultiple
+    )
+
+    class Meta:
+        model = CustomUser
+        fields = ['first_name', 'last_name', 'email', 'department', 'roll_number', 'courses']

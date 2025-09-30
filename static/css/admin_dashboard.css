@@ -321,7 +321,7 @@ a:hover {
     font-size: 1.2rem;
     color: var(--text-color);
     margin-top: 0;
-    margin-bottom: 0.75rem;
+    margin-bottom: 1px;
 }
 
 .enrollment-list {

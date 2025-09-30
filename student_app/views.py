@@ -1,18 +1,22 @@
 from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.auth import authenticate, login, logout
-from django.contrib.auth.decorators import login_required,user_passes_test
-
+from django.contrib.auth.decorators import login_required, user_passes_test
+from django.db.models import Q
 from django.http import HttpResponseForbidden
 from .forms import (
     StudentRegistrationForm,
     StudentFullProfileForm,
     AdminAddStudentForm,
     CourseForm,
-    EnrollmentForm,StudentEditForm
+    EnrollmentForm,
+    StudentEditForm,
+    StudentEditFormFromStudentList,
 )
 from .models import CustomUser, Course, Enrollment
-
-
+from django.core.mail import send_mail
+from django.http import HttpResponse
+from django.conf import settings 
+from django.core.paginator import Paginator
 # Home
 def HomeView(request):
     return render(request, "base.html")
@@ -23,10 +27,22 @@ def register(request):
     if request.method == "POST":
         form = StudentRegistrationForm(request.POST)
         if form.is_valid():
-            form.save()  # just save the CustomUser
+            user = form.save()  # Save the user
+            subject = "Welcome to Student Management System"
+            message = f"Hello {user.first_name},\n\nYour account has been created successfully.\nUsername: {user.username}\n\nYou can now log in using your credentials."
+            recipient_list = [user.email]
+            send_mail(
+                subject,
+                message,
+                settings.EMAIL_HOST_USER,
+                recipient_list,
+                fail_silently=True
+            )
+
             return redirect("login")
     else:
         form = StudentRegistrationForm()
+
     return render(request, "register.html", {"form": form})
 
 
@@ -81,21 +97,15 @@ def edit_profile(request):
 def student_dashboard(request):
     if request.user.role != "student":
         return HttpResponseForbidden("Only students allowed here")
-
+    
     user = request.user
     department_name = user.department.name if user.department else "Not Assigned"
-
     enrollments = Enrollment.objects.filter(student=user).select_related("course")
-
-    # Stats
     total_courses = enrollments.count()
     completed_courses = enrollments.filter(status="completed").count()
     active_courses = enrollments.filter(status="active").count()
-
-    # Courses student has NOT enrolled in
     enrolled_ids = enrollments.values_list("course_id", flat=True)
     available_courses = Course.objects.exclude(id__in=enrolled_ids)
-
     context = {
         "user": user,
         "department_name": department_name,
@@ -116,10 +126,11 @@ def admin_dashboard(request):
 
     # Get all students
     students = CustomUser.objects.filter(role="student").select_related("department")
-
+    query = request.GET.get('q')  # 'q' will be the search box input
     # Get all enrollments with related student and course
     enrollments = Enrollment.objects.select_related("student", "course").all()
-
+    
+   
     # Optional: Prepare a summary dictionary for stats
     total_students = students.count()
     total_courses = Course.objects.count()
@@ -137,6 +148,7 @@ def admin_dashboard(request):
         "completed_enrollments": completed_enrollments,
         "active_enrollments": active_enrollments,
         "dropped_enrollments": dropped_enrollments,
+        "query": query
     }
     return render(request, "admin_dashboard.html", context)
 
@@ -207,6 +219,7 @@ def edit_course(request, pk):
 
     return render(request, "edit_course.html", {"form": form, "course": course})
 
+
 @login_required
 def delete_course(request, pk):
     if request.user.role != "admin":
@@ -223,9 +236,9 @@ def delete_course(request, pk):
 # -------------------------------------------------------------------------------------------------------------------
 
 
-
 def is_admin(user):
-    return user.is_authenticated and user.role == 'admin'
+    return user.is_authenticated and user.role == "admin"
+
 
 @login_required
 @user_passes_test(is_admin)
@@ -241,6 +254,7 @@ def assign_course(request):
     else:
         form = EnrollmentForm()
     return render(request, "assign_course.html", {"form": form})
+
 
 @login_required
 @user_passes_test(is_admin)
@@ -305,12 +319,13 @@ def student_detail(request, pk):
 
 
 def is_admin(user):
-    return user.is_authenticated and user.role == 'admin'
+    return user.is_authenticated and user.role == "admin"
+
 
 @login_required
 @user_passes_test(is_admin)
 def edit_student(request, student_id):
-    student = get_object_or_404(CustomUser, id=student_id, role='student')
+    student = get_object_or_404(CustomUser, id=student_id, role="student")
     if request.method == "POST":
         form = StudentEditForm(request.POST, instance=student)
         if form.is_valid():
@@ -320,8 +335,10 @@ def edit_student(request, student_id):
         form = StudentEditForm(instance=student)
     return render(request, "edit_student.html", {"form": form, "student": student})
 
+
 def is_admin(user):
-    return user.is_authenticated and user.role == 'student'
+    return user.is_authenticated and user.role == "student"
+
 
 @login_required
 @user_passes_test(is_admin)
@@ -330,4 +347,73 @@ def update_enrollment_status(request, enrollment_id, status):
     if status in dict(Enrollment.STATUS_CHOICES).keys():
         enrollment.status = status
         enrollment.save()
-    return redirect('student_dashboard')
+    return redirect("student_dashboard")
+
+@login_required
+@user_passes_test(lambda u: u.role == "admin")
+def edit_student(request, student_id):
+    student = get_object_or_404(CustomUser, id=student_id, role="student")
+
+    if request.method == "POST":
+        form = StudentEditFormFromStudentList(request.POST, instance=student)
+        if form.is_valid():
+            student = form.save()
+
+            # Update enrollments
+            selected_courses = form.cleaned_data.get("courses")
+            # Remove existing enrollments not in selected_courses
+            Enrollment.objects.filter(student=student).exclude(
+                course__in=selected_courses
+            ).delete()
+            # Add new enrollments
+            for course in selected_courses:
+                Enrollment.objects.get_or_create(
+                    student=student, course=course, defaults={"status": "active"}
+                )
+
+            return redirect("student_list")
+    else:
+        enrolled_courses = student.enrollments.values_list("course", flat=True)
+        form = StudentEditFormFromStudentList(
+            instance=student, initial={"courses": enrolled_courses}
+        )
+
+    return render(request, "edit_student.html", {"form": form, "student": student})
+
+from django.core.paginator import Paginator
+from django.db.models import Q
+from django.shortcuts import render
+from .models import CustomUser
+
+def student_list(request):
+    query = request.GET.get("q")  # get search keyword
+    if query:
+        students = CustomUser.objects.filter(
+            Q(first_name__icontains=query) |
+            Q(last_name__icontains=query) |
+            Q(email__icontains=query) |
+            Q(roll_number__icontains=query)
+        )
+    else:
+        students = CustomUser.objects.all()
+        
+    # Pagination
+    paginator = Paginator(students, 5)  # Show 5 students per page
+    page_number = request.GET.get('page')
+    page_obj = paginator.get_page(page_number)
+
+    return render(request, "student_list.html", {
+        "page_obj": page_obj,
+        "query": query
+    })
+
+
+def test_email(request):
+    send_mail(
+        "Test Email",
+        "This is a test message from Django.",
+        "akshayshaji688@gmail.com",  # From
+        ["samadev45@gmail.coom"],                        # To
+        fail_silently=False,
+    )
+    return HttpResponse("Test email sent!")

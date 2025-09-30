@@ -13,6 +13,7 @@ urlpatterns = [
     path("profile/edit/", views.edit_profile, name="edit_profile"),
     path("students/", views.student_list, name="student_list"),
     path("students/add/", views.admin_add_student, name="add_student"),
+    path('students/<int:student_id>/edit/', views.edit_student, name='edit_student'),
     path("courses/", views.course_list, name="course_list"),
     path("courses/add/", views.add_course, name="add_course"),
     path("courses/<int:pk>/edit/", views.edit_course, name="edit_course"),
@@ -24,4 +25,5 @@ urlpatterns = [
     path("enrollments/", views.enrollment_list, name="enrollment_list"),
     path("edit-student/<int:student_id>/", views.edit_student, name="edit_student"),
     path("enrollment/<int:enrollment_id>/status/<str:status>/", views.update_enrollment_status, name="update_enrollment_status", ),
+    path("enroll/<int:course_id>/", views.enroll_course, name="enroll_course")
 ]

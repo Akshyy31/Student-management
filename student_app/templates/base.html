@@ -1,77 +1,123 @@
 {% load static %}
 <!DOCTYPE html>
 <html lang="en">
-  <head>
-    <title>Student Management</title>
-    {% load static %}
-    <!-- Required meta tags -->
+<head>
+    <title>Student Management System</title>
+    
     <meta charset="utf-8" />
     <meta
       name="viewport"
       content="width=device-width, initial-scale=1, shrink-to-fit=no"
     />
-  <link rel="stylesheet" href="{% static 'student_app/student_dashboard.css' %}">
-    <!-- Bootstrap CSS v5.2.1 -->
+    
     <link
       href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css"
       rel="stylesheet"
       integrity="sha384-T3c6CoIi6uLrA9TneNEoa7RxnatzjcDSCmG1MXxSR1GAsXEV/Dwwykc2MPK8M2HN"
       crossorigin="anonymous"
     />
-  </head>
+    
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
 
-  
- <body>
-<nav class="navbar navbar-expand-lg navbar-dark bg-dark">
-  <div class="container-fluid">
-    <a class="navbar-brand" href="#">StudentMgmt</a>
-    <div class="collapse navbar-collapse">
-      <ul class="navbar-nav ms-auto">
-        <li class="nav-item"><a class="nav-link" href="{% url 'login' %}">Login</a></li>
-        <li class="nav-item"><a class="nav-link" href="{% url 'register' %}">Register</a></li>
-      </ul>
-    </div>
-  </div>
-</nav>
+    <link rel="stylesheet" href="{% static 'student_app/student_dashboard.css' %}">
 
-<!-- <div class="header">
-      <div class="logo">
-        <i class="fas fa-user-graduate"></i>
-        <span>student management</span>
-      </div>
-      <nav class="nav-links">
-        <a href="#"><i class="fas fa-home"></i>Home</a>
-        <a href="#"><i class="fas fa-info-circle"></i>About</a>
-      </nav>
-      <div class="user-info">
-        <span>Welcome, rinshad</span>
-        <a href="#"><i class="fas fa-sign-out-alt"></i>Logout</a>
-      </div>
-    </div> -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+</head>
 
-<div class="container mt-4">
-    {% block content %}
-    <div>
-  <H1>Student Home page</H1>
-</div>
-    {% endblock %}
+<body class="d-flex flex-column min-vh-100" style="font-family: 'Inter', sans-serif;">
 
-</div>
+    <nav class="navbar navbar-expand-lg navbar-dark bg-primary shadow-sm">
+        <div class="container">
+            <a class="navbar-brand fw-bold" href="#">🎓 StudentLMS</a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav ms-auto">
+                    <li class="nav-item">
+                        <a class="nav-link btn btn-sm text-light btn-outline-light me-2" href="{% url 'login' %}"><i class="bi bi-person-circle me-1"></i> Login</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link btn btn-sm btn-outline-light text-light fw-bold" href="{% url 'register' %}"><i class="bi bi-person-plus-fill me-1"></i> Register</a>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </nav>
 
-<footer class="bg-dark text-white text-center p-3 mt-4">
-    &copy; 2025 Student Management System
-</footer>
+    <main class="container mt-4 mb-4 flex-grow-1">
+        {% block content %}
+        
+        <div class="p-5 text-center bg-image rounded-3 mb-5 shadow-lg" 
+             style="background-image: url('https://picsum.photos/1200/400?blur=1'); 
+                    background-size: cover; 
+                    background-position: center;
+                    height: 350px;">
+            <div class="mask h-100 w-100 d-flex justify-content-center align-items-center" 
+                 style="background-color: rgba(0, 0, 0, 0.5);">
+                <div class="text-white">
+                    <h1 class="mb-3 display-4 fw-bold">Your Path to Success Starts Here.</h1>
+                    <h4 class="mb-4 fw-light">Access grades, courses, and resources—all in one place.</h4>
+                    <a class="btn btn-warning btn-lg me-2 fw-bold" href="{% url 'register' %}" role="button">
+                        <i class="bi bi-rocket-takeoff-fill me-2"></i> Start Your Journey
+                    </a>
+                    <a class="btn btn-outline-light btn-lg" href="{% url 'login' %}" role="button">
+                        <i class="bi bi-box-arrow-in-right me-2"></i> Student Login
+                    </a>
+                </div>
+            </div>
+        </div>
+        
+        <h2 class="text-center mb-4 text-secondary fw-light">Everything You Need for a Seamless School Year</h2>
+        
+        <div class="row g-4">
+            
+            <div class="col-md-4">
+                <div class="card h-100 shadow border-start border-primary border-5 rounded-3">
+                    <div class="card-body text-center p-4">
+                        <i class="bi bi-book-fill text-primary display-4 mb-3"></i>
+                        <h5 class="card-title fw-bold">My Courses</h5>
+                        <p class="card-text text-muted">View all your enrolled subjects, weekly assignments, and class schedules.</p>
+                        <a href="{% url 'login' %}" class="btn btn-sm btn-outline-primary mt-2">Go to Dashboard</a>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-md-4">
+                <div class="card h-100 shadow border-start border-success border-5 rounded-3">
+                    <div class="card-body text-center p-4">
+                        <i class="bi bi-graph-up-arrow text-success display-4 mb-3"></i>
+                        <h5 class="card-title fw-bold">Check Grades</h5>
+                        <p class="card-text text-muted">Monitor your academic progress and view detailed report cards instantly.</p>
+                        <a href="{% url 'login' %}" class="btn btn-sm btn-outline-success mt-2">View Scores</a>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="col-md-4">
+                <div class="card h-100 shadow border-start border-warning border-5 rounded-3">
+                    <div class="card-body text-center p-4">
+                        <i class="bi bi-bell-fill text-warning display-4 mb-3"></i>
+                        <h5 class="card-title fw-bold">Announcements</h5>
+                        <p class="card-text text-muted">Stay up-to-date with school news, events, and important faculty messages.</p>
+                        <a href="{% url 'login' %}" class="btn btn-sm btn-outline-warning mt-2">See Updates</a>
+                    </div>
+                </div>
+            </div>
+
+        </div> {% endblock %}
+    </main>
+
+    <footer class="bg-dark text-white text-center p-3 mt-auto">
+        <div class="container">
+            <small>&copy; 2025 Student Management System | <a href="#" class="text-white-50 text-decoration-none">Support</a></small>
+        </div>
+    </footer>
 
     <script
-      src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.11.8/dist/umd/popper.min.js"
-      integrity="sha384-I7E8VVD/ismYTF4hNIPjVp/Zjvgyol6VFvRkX/vR+Vc4jQkC+hVqc2pM8ODewa9r"
+      src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"
+      integrity="sha384-C6RzsynM9kWDrMNeT87bh95OGNyZPhcTNXj1NW7RuBCsyN/o0jlpcV8Qyq46cDfL"
       crossorigin="anonymous"
     ></script>
-
-    <script
-      src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.min.js"
-      integrity="sha384-BBtl+eGJRgqQAUMxJ7pMwbEyER4l1g+O15P+16Ep7Q9Q+zqX6gSbd85u4mG4QzX+"
-      crossorigin="anonymous"
-    ></script>
-  </body>
+</body>
 </html>

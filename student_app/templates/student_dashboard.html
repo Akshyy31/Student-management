@@ -20,7 +20,6 @@
       </div>
       <nav class="nav-links">
         <a href="#"><i class="fas fa-home"></i> Home</a>
-        <a href="#"><i class="fas fa-info-circle"></i> About</a>
       </nav>
       <div class="user-info">
         <span>Welcome, {{ request.user.username }}</span>
@@ -37,19 +36,22 @@
         <img
           src="{{ request.user.profile_picture.url }}"
           alt="Profile picture"
-          width="150"
+          width="100"
+          style="border-radius: 50%; object-fit: cover"
         />
         {% else %}
         <img
           src="{% static 'images/default-avatar.png' %}"
           alt="Default profile"
           width="150"
+          style="border-radius: 50%; object-fit: cover"
         />
         {% endif %}
+
         <div class="profile-details">
           <h1>{{ request.user.first_name }} {{ request.user.last_name }}</h1>
           <p class="username">{{ request.user.username }}</p>
-          <span class="badge">{{ request.user.department.name }}</span>
+          <span class="badge">{{ request.user.department }}</span>
         </div>
         <a href="{% url 'edit_profile' %}">
           <button class="edit-profile-btn">
@@ -111,63 +113,80 @@
         </div>
 
         <!-- Enrolled Courses -->
-        <div class="courses-card">
-          <h2><i class="fas fa-graduation-cap"></i> My Courses</h2>
-          {% if enrollments %}
-            {% for enrollment in enrollments %}
-              <div class="course-item">
-                <p class="course-name">
-                  {{ enrollment.course.title }} ({{ enrollment.course.id }})
-                </p>
-                <div class="course-details">
-                  <div class="completion-status">
-                    <i class="fas fa-calendar-day"></i> {{ enrollment.enrollment_date|date:"Y-m-d" }}
-                    {% if enrollment.status == "completed" %}
-                      <span class="completed-badge"><i class="fas fa-check-circle"></i> Completed</span>
-                    {% elif enrollment.status == "active" %}
-                      <span class="in-progress-badge"><i class="fas fa-spinner"></i> In Progress</span>
-                    {% elif enrollment.status == "dropped" %}
-                      <span class="dropped-badge"><i class="fas fa-times-circle"></i> Dropped</span>
-                    {% else %}
-                      <span class="pending-badge"><i class="fas fa-hourglass-half"></i> Pending</span>
-                    {% endif %}
-                  </div>
-                  <div class="status-buttons">
-                    <a href="{% url 'update_enrollment_status' enrollment.id 'pending' %}" class="btn btn-warning btn-sm">Pending</a>
-                    <a href="{% url 'update_enrollment_status' enrollment.id 'active' %}" class="btn btn-info btn-sm">In Progress</a>
-                    <a href="{% url 'update_enrollment_status' enrollment.id 'completed' %}" class="btn btn-success btn-sm">Completed</a>
-                    <a href="{% url 'update_enrollment_status' enrollment.id 'dropped' %}" class="btn btn-danger btn-sm">Dropped</a>
-                  </div>
-                </div>
-              </div>
-            {% endfor %}
+<!-- Enrolled Courses -->
+<div class="courses-card">
+  <h2><i class="fas fa-graduation-cap"></i> My Courses</h2>
+  {% for enrollment in enrollments %}
+    <div class="course-item">
+      <p class="course-name">{{ enrollment.course.title }} ({{ enrollment.course.id }})</p>
+      <div class="course-details">
+        <div class="completion-status">
+          <i class="fas fa-calendar-day"></i> {{ enrollment.enrollment_date|date:"Y-m-d" }}
+
+          {% if enrollment.status == "completed" %}
+            <span class="completed-badge"><i class="fas fa-check-circle"></i> Completed</span>
+          {% elif enrollment.status == "active" %}
+            <span class="in-progress-badge"><i class="fas fa-spinner"></i> In Progress</span>
+          {% elif enrollment.status == "dropped" %}
+            <span class="dropped-badge"><i class="fas fa-times-circle"></i> Dropped</span>
           {% else %}
-            <p>No courses enrolled yet.</p>
+            <span class="pending-badge"><i class="fas fa-hourglass-half"></i> Pending</span>
           {% endif %}
         </div>
 
-        <!-- Available Courses for Enrollment -->
-        <div class="courses-card">
-          <h2><i class="fas fa-plus-circle"></i> Enroll New Courses</h2>
-          {% if available_courses %}
-            {% for course in available_courses %}
-              <div class="course-item">
-                <p class="course-name">{{ course.name }} ({{ course.code }})</p>
-                <div class="course-details">
-                  <p>{{ course.description }}</p>
-                  <p>Credits: {{ course.credits }}</p>
-                  <form action="{% url 'enroll_course' course.id %}" method="POST">
-                    {% csrf_token %}
-                    <button type="submit" class="enroll-btn"><i class="fas fa-plus-circle"></i> Enroll</button>
-                  </form>
-                </div>
-              </div>
-            {% endfor %}
-          {% else %}
-            <p>No available courses to enroll.</p>
-          {% endif %}
+        <!-- Status Buttons -->
+        <div class="status-buttons mt-2">
+          <form action="{% url 'update_enrollment_status' enrollment.id 'pending' %}" method="POST" style="display:inline;">
+            {% csrf_token %}
+            <button type="submit" class="btn btn-warning btn-sm" {% if enrollment.status == 'pending' %}disabled{% endif %}>Pending</button>
+          </form>
+
+          <form action="{% url 'update_enrollment_status' enrollment.id 'active' %}" method="POST" style="display:inline;">
+            {% csrf_token %}
+            <button type="submit" class="btn btn-info btn-sm" {% if enrollment.status == 'active' %}disabled{% endif %}>In Progress</button>
+          </form>
+
+          <form action="{% url 'update_enrollment_status' enrollment.id 'completed' %}" method="POST" style="display:inline;">
+            {% csrf_token %}
+            <button type="submit" class="btn btn-success btn-sm" {% if enrollment.status == 'completed' %}disabled{% endif %}>Completed</button>
+          </form>
+
+          <form action="{% url 'update_enrollment_status' enrollment.id 'dropped' %}" method="POST" style="display:inline;">
+            {% csrf_token %}
+            <button type="submit" class="btn btn-danger btn-sm" {% if enrollment.status == 'dropped' %}disabled{% endif %}>Dropped</button>
+          </form>
         </div>
+
+      </div>
+    </div>
+  {% empty %}
+    <p>No courses enrolled yet.</p>
+  {% endfor %}
+</div>
+
+
+
+        <!-- Available Courses for Enrollment -->
       </main>
+      <!-- <div class="courses-card m-5">
+        <h2><i class="fas fa-plus-circle"></i> Enroll New Courses</h2>
+        {% if available_courses %} {% for course in available_courses %}
+        <div class="course-item">
+          <p class="course-name">{{ course.title }} ({{ course.code }})</p>
+          <div class="course-details">
+            <p>{{ course.description }}</p>
+            <form action="{% url 'enroll_course' course.id %}" method="POST">
+              {% csrf_token %}
+              <button type="submit" class="enroll-btn">
+                <i class="fas fa-plus-circle"></i> Enroll
+              </button>
+            </form>
+          </div>
+        </div>
+        {% endfor %} {% else %}
+        <p>No available courses to enroll.</p>
+        {% endif %}
+      </div> -->
     </div>
 
     <div class="chat-icon"><i class="fas fa-comment-dots"></i></div>

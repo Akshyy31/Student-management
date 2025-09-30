@@ -1,10 +1,69 @@
-<h2>Login</h2>
-<form method="post">
-    {% csrf_token %}
-    <input type="text" name="username" placeholder="Username"><br>
-    <input type="password" name="password" placeholder="Password"><br>
-    <button type="submit">Login</button>
-</form>
-{% if error %}
-    <p style="color:red">{{ error }}</p>
-{% endif %}
+{% extends "base.html" %}  {% load static %}
+
+{% block content %}
+    <div class="container mt-5">
+        <div class="row justify-content-center">
+            <div class="col-md-6 col-lg-5">
+                <div class="card shadow-lg p-4">
+                    <div class="card-body">
+                        <h2 class="card-title text-center text-primary mb-4 fw-bold">
+                            <i class="bi bi-person-fill me-2"></i> Student Login
+                        </h2>
+                        
+                        <form method="post">
+                            {% csrf_token %}
+                            
+                            <div class="mb-3">
+                                <label for="id_username" class="form-label visually-hidden">Username</label>
+                                <div class="input-group">
+                                    <span class="input-group-text"><i class="bi bi-person"></i></span>
+                                    <input 
+                                        type="text" 
+                                        name="username" 
+                                        placeholder="Enter your Username" 
+                                        class="form-control form-control-lg"
+                                        id="id_username"
+                                        required
+                                    >
+                                </div>
+                            </div>
+                            
+                            <div class="mb-4">
+                                <label for="id_password" class="form-label visually-hidden">Password</label>
+                                <div class="input-group">
+                                    <span class="input-group-text"><i class="bi bi-lock"></i></span>
+                                    <input 
+                                        type="password" 
+                                        name="password" 
+                                        placeholder="Enter your Password" 
+                                        class="form-control form-control-lg"
+                                        id="id_password"
+                                        required
+                                    >
+                                </div>
+                            </div>
+                            
+                            {% if error %}
+                                <div class="alert alert-danger text-center" role="alert">
+                                    {{ error }}
+                                </div>
+                            {% endif %}
+                            
+                            <div class="d-grid gap-2">
+                                <button type="submit" class="btn btn-primary btn-lg fw-bold">
+                                    <i class="bi bi-box-arrow-in-right me-2"></i> Login
+                                </button>
+                            </div>
+                        </form>
+                        
+                        <hr class="my-4">
+                        
+                        <p class="text-center text-muted">
+                            Don't have an account? <a href="{% url 'register' %}" class="text-decoration-none fw-bold">Register here</a>
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+{% endblock content %}
